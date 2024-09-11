@@ -57,7 +57,7 @@ document.getElementById('encomendaForm').addEventListener('submit', function(e) 
     formData.append("image", imagem);
 
     // Passo 1: Enviar a imagem para o backend
-    fetch("https://efficient-noiseless-cord.glitch.me", {
+    fetch("https://efficient-noiseless-cord.glitch.me/upload", {
         method: "POST",
         body: formData
     })
