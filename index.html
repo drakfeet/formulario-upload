@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulário de Encomenda com Upload de Imagem</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+    form { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); max-width: 400px; margin: auto; }
+    label { font-weight: bold; margin-top: 10px; display: block; }
+    input, textarea { width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; }
+    button { background-color: #28a745; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; width: 100%; }
+    button:hover { background-color: #218838; }
+  </style>
+</head>
+<body>
+
+<form id="encomendaForm">
+  <label for="nome">Seu nome:</label>
+  <input type="text" id="nome" name="nome" required>
+
+  <label for="telefone">Seu WhatsApp:</label>
+  <input type="text" id="telefone" name="telefone" required>
+
+  <label for="modelo">Modelo do tênis:</label>
+  <input type="text" id="modelo" name="modelo" required>
+
+  <label for="tamanho">Tamanho:</label>
+  <input type="text" id="tamanho" name="tamanho" required>
+
+  <label for="mensagem">Mensagem adicional:</label>
+  <textarea id="mensagem" name="mensagem"></textarea>
+
+  <label for="imagem">Envie uma imagem:</label>
+  <input type="file" id="imagem" name="imagem" accept="image/*">
+
+  <button type="submit">Enviar Pedido</button>
+</form>
+
+<script>
+document.getElementById('encomendaForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var nome = document.getElementById('nome').value;
+    var telefone = document.getElementById('telefone').value;
+    var modelo = document.getElementById('modelo').value;
+    var tamanho = document.getElementById('tamanho').value;
+    var mensagem = document.getElementById('mensagem').value;
+    var imagem = document.getElementById('imagem').files[0];
+
+    if (!imagem) {
+      alert("Por favor, selecione uma imagem.");
+      return;
+    }
+
+    var formData = new FormData();
+    formData.append("image", imagem);
+
+    // Passo 1: Enviar a imagem para o backend
+    fetch("https://drakfeet.github.io/backend-upload/upload", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.link) {
+            var imagemLink = data.link; // Link da imagem carregada
+
+            // Passo 2: Enviar dados via WhatsApp
+            var textoWhatsApp = `*Pedido de Encomenda*%0A%0A` +
+                                `*Nome:* ${nome}%0A` +
+                                `*WhatsApp:* ${telefone}%0A` +
+                                `*Modelo do Tênis:* ${modelo}%0A` +
+                                `*Tamanho:* ${tamanho}%0A` +
+                                `*Mensagem:* ${mensagem}%0A` +
+                                `*Imagem:* ${imagemLink}`;
+
+            var numeroWhatsApp = "5519994785333"; // Substitua pelo seu número
+            var url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${textoWhatsApp}`;
+
+            window.open(url, '_blank');
+        } else {
+            alert("Erro ao enviar a imagem.");
+        }
+    })
+    .catch(error => {
+        alert("Erro ao enviar a imagem: " + error.message);
+    });
+});
+</script>
+
+</body>
+</html>
